@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Hub Disktrans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="hub-extra.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<!-- aplica o modo do menu antes de pintar: a página não "pula" -->
+<script>(function(d){try{var m=localStorage.getItem('hub-menu');d.classList.add('hubm-on',m==='recolhido'?'hubm-recolhido':'hubm-expandido')}catch(e){d.classList.add('hubm-on','hubm-expandido')}})(document.documentElement);</script>
+<script src="hub-icones.js"></script>
+<script>
+/* Dados de exemplo. Num back-end real, gere window.HUB no servidor (§9 do HUB_DESIGN_DISKTRANS.md). */
+var LOGO_DK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" role="img" aria-label="Disktrans"><g fill-rule="evenodd"><path fill="#f4941d" d="M703.89,130.77l-19.4,91.5h-.34l-36.69-91.5h-18.72l-15,70.580-11.35-70.58h-16.01l-52.02,90.32-24.06-30.25h9.74l14.66-1.020c16.35-2.03,18.47-16.18,21.52-30.25,4.83-22.79-3.39-28.81-24.99-28.81h-48.63l-21.44,100.14h11.35l19.23-90.15h37.45c17.88,0,18.64,4.83,15.93,17.62-3.56,16.52-6.86,21.94-24.4,22.45h-31.18l39.14,50.07h11.86l52.11-90.82,14.06,90.82h12.12l19.32-90.82h.25l37.02,90.82h18.55l21.27-100.14h-11.35Z"/><path fill="#f4941d" d="M788.28,158.06c7.03-27.2-8.390-28.13-29.99-28.13-24.65,0-37.45,2.37-43.12,29.06-5.590,26.52,11.86,24.06,31.26,25.67,18.050,1.52,27.28-1.690,23.21,17.37-4.24,19.74-10.08,19.74-31.43,19.74s-25.59,0-20.59-22.11h-11.35c-8.3,29.06,4.24,32.11,29.74,32.11s38.89-.93,44.9-29.31c5.76-27.11-6.44-26.43-29.91-27.79-18.64-.51-28.04,1.1-23.98-18.05,2.97-13.89,6.61-16.69,28.81-16.69s24.32.68,21.1,18.13h11.35Z"/><path fill="#f4941d" d="M400.33,130.77l-8.47,10h38.8l-19.15,90.15h11.35l19.15-90.15h33.3l2.29-10h-77.27Z"/><path fill="#fff" d="M777.27,243.54h-394.31l-34.31-64.05,46.43-49.82h-32.79l-31.18,34.74,15.17-74.47-165.38,28.21h131.07l-22.2,113.19h27.11l7.79-36.52,37.87,76.93,414.73-28.21Z"/><path fill="#f4941d" d="M233.08,243.12H21.86l-.59,1.61h53.21l-.42,1.69h76l-.85,3.3h69.47l-1.020,4.24h84.89v-10.85h-69.47Z"/><path fill="#f4941d" d="M71.34,259.98h76l-.85,3.3h69.47l-1.02,4.24h63.37v-10.84H19.15l-.59,1.61h53.21l-.42,1.69Z"/><path fill="#f4941d" d="M68.21,273.53h75.91l-.85,3.3h69.56l-1.1,4.24h61.85v-10.84H16.02l-.59,1.69h53.21l-.42,1.61Z"/><path fill="#f4941d" d="M65.49,287.09h75.91l-.85,3.3h69.56l-1.1,4.32h64.39v-10.84H13.3l-.59,1.61h53.21l-.42,1.61Z"/><path fill="#f4941d" d="M209.02,297.43H10.59l-.59,1.61h53.21l-.42,1.69h75.91l-.85,3.3h69.56l-1.1,4.24h84.98v-10.84h-82.27Z"/><path fill="#fff" d="M290.35,308.27c17.96,0,35.16-14.57,38.38-32.62,3.13-17.96-8.9-32.53-26.86-32.53s-35.16,14.57-38.38,32.530c-3.13,18.05,8.9,32.62,26.86,32.62Z"/><path fill="#f4941d" d="M292.64,295.22c10.84,0,21.1-8.73,23.05-19.57,1.86-10.76-5.34-19.49-16.1-19.49s-21.1,8.73-23.04,19.49c-1.86,10.84,5.34,19.57,16.1,19.57Z"/><path fill="#fff" d="M197.58,106.88c18.05,0,35.16-14.57,38.38-32.62,3.13-17.96-8.9-32.53-26.86-32.53s-35.16,14.57-38.38,32.53c-3.13,18.05,8.9,32.62,26.86,32.62Z"/><path fill="#f4941d" d="M199.87,93.83c10.84,0,21.1-8.73,23.04-19.57,1.86-10.76-5.34-19.49-16.1-19.49s-21.1,8.73-23.04,19.49c-1.86,10.84,5.34,19.57,16.1,19.57Z"/><path fill="#fff" d="M178.35,129.67l-21.6,101.67h27.11l21.6-101.67h-27.11Z"/><path fill="#fff" d="M255.53,169.66l-11.1-.85c-7.03-.51-10.93-.85-9.15-9.070,1.19-5.76,3.05-8.81,17.71-8.81,10.76,0,15.08,0,12.88,10.51h26.01l.85-4.24c6.02-28.04-12.88-28.38-35.08-28.38-26.52,0-43.29,1.86-49.48,30.92-6.27,29.31,8.47,29.15,33.13,30.92l5.85.42c12.54.85,14.06.68,12.2,9.57-1.86,8.64-6.27,9.49-18.98,9.49-13.39,0-16.94-1.1-14.66-11.78h-26.01c-7.03,33.38,10,33.89,35.92,33.89,44.82,0,47.62-16.44,51.17-33.38,5-23.3-1.69-27.11-31.26-29.23Z"/><path fill="#fff" d="M164.37,148.4c8.22-38.46-5.59-52.61-43.38-52.61H52.45l-7.03,31.43h68.03c12.62,0,17.45,3.64,13.73,21.18l-6.1,28.38c-3.05,14.32-9.74,23.21-23.13,23.21H30l-6.35,31.35h73.46c37.7,0,53.38-17.45,61.26-54.56l6.02-28.38Z"/></g></svg>';
+
+/* Roteamento por #hash: #inicio, #catalogo, #avisos, #app-<pasta> */
+function lerHash(H) {
+  var h = (location.hash || '').slice(1);
+  H.appAtual = h.indexOf('app-') === 0 ? h.slice(4) : null;
+  H.telaAtual = H.appAtual ? null : (h || 'inicio');
+}
+var app = (function (a) { return a.map(function (x) { return Object.assign({ ativo: true, pode: true, acesso: 'todos', pessoas: [], selo: '', versao: '1.0.0', responsavel: 'Pós-venda', atalho: '' }, x, { href: x.url || ('#app-' + x.pasta) }); }); })([
+  { pasta: 'trocas-abertas', nome: 'Trocas em Aberto', resumo: 'Trocas abertas e vencidas por Matriz, filial, CD e concessionária', area: 'Pós-venda', icone: 'troca', cor: 'laranja', atalho: 'T', selo: 'Atualiza de hora em hora' },
+  { pasta: 'disktrocas', nome: 'DiskTrocas', resumo: 'Acompanhamento das solicitações em aberto e entregues no mês, com romaneio, prazo e status', area: 'Pós-venda', icone: 'transpaleteira', cor: 'azul', atalho: 'D', versao: '3.0.0', selo: 'Dados reais' },
+  { pasta: 'fup-aging', nome: 'FUP de Trocas', resumo: 'Aging em dias úteis das trocas em aberto, com controle de entrega', area: 'Pós-venda', icone: 'relogio', cor: 'navy', atalho: 'F' },
+  { pasta: 'missao-trocas', nome: 'Missão Trocas em Dia', resumo: 'Evolução das trocas atrasadas por CSS/CD e prioridade P1–P4', area: 'Gestão', icone: 'alvo', cor: 'laranja', atalho: 'M' },
+  { pasta: 'resumo-diario', nome: 'Resumo Diário de Trocas', resumo: 'One page do dia: abertas × atrasadas × entregas contra o dia e o ano anterior', area: 'Gestão', icone: 'documento', cor: 'carvao', atalho: 'R' },
+  { pasta: 'painel-fca', nome: 'Painel FCA', resumo: 'Trocas em aberto × entregues, aging em dias úteis e previsão de saída por concessionária e unidade', area: 'Pós-venda', icone: 'linha', cor: 'medio', atalho: 'C', selo: 'Externo', responsavel: 'Pós-venda', url: 'https://disktrans-tech.github.io/Painel-FCA/' },
+  { pasta: 'carteira-cs', nome: 'Carteira CS', resumo: 'Gestão da carteira de clientes de Customer Success', area: 'Comercial', icone: 'pessoas', cor: 'azul', atalho: 'K', selo: 'Externo', responsavel: 'Customer Success', url: 'https://jaquelinedisktrans.github.io/carteira-cs-site/' },
+  { pasta: 'portal-pedidos', nome: 'Portal de Pedidos', resumo: 'Solicitação de equipamentos pelo cliente. Abre o portal em outra aba, com login próprio', area: 'Comercial', icone: 'lista', cor: 'laranja', atalho: 'P', selo: 'Externo', responsavel: 'Comercial', url: 'https://portal-de-pedidos-disktrans.disktrans.com.br/' },
+  { pasta: 'robo-whatsapp', nome: 'Robô WhatsApp', resumo: 'Disparo às concessionárias, triagem por menu e consulta de status no Chatwoot', area: 'Comercial', icone: 'conversa', cor: 'medio', atalho: 'W', selo: 'Beta', responsavel: 'Atendimento' },
+  { pasta: 'forum-clientes', nome: 'Fórum de Clientes', resumo: 'Monta o deck de resultados para fóruns com clientes e parceiros', area: 'Comercial', icone: 'apresentacao', cor: 'azul', responsavel: 'Comercial' },
+  { pasta: 'especialista-dados', nome: 'Especialista de Dados', resumo: 'Perguntas sobre a operação respondidas direto do disktrans_gold', area: 'Dados', icone: 'ia', cor: 'navy', atalho: 'E', responsavel: 'Dados' },
+  { pasta: 'frota-locada', nome: 'Frota Locada', resumo: 'Equipamentos locados por cliente, modelo e unidade', area: 'Dados', icone: 'empilhadeira', cor: 'medio', responsavel: 'Dados' },
+  { pasta: 'romaneios', nome: 'Romaneios', resumo: 'Entregas e retiradas do dia por rota e unidade', area: 'Logística', icone: 'caminhao', cor: 'azul', responsavel: 'Logística', pode: false },
+  { pasta: 'oficina', nome: 'Oficina', resumo: 'Fila de manutenção na Matriz, Cravinhos e Contagem', area: 'Oficina', icone: 'ferramenta', cor: 'carvao', responsavel: 'Manutenção', ativo: false }
+]);
+window.HUB = {
+  usuario: { nome: '', primeiroNome: '', iniciais: '··', papel: '' },
+  admin: false, novos: 1, local: 'Matriz · Jundiaí',
+  apps: app,
+  areas: { 'Pós-venda': 'laranja', 'Logística': 'azul', 'Oficina': 'carvao', 'Comercial': 'medio', 'Dados': 'navy', 'Gestão': 'cinza' },
+  favoritos: ['trocas-abertas', 'disktrocas'],
+  avisos: [
+    { texto: 'Trocas em Aberto e DiskTrocas agora se atualizam de hora em hora (seg a sex, 9h30 às 18h30), direto do disktrans_gold.', nivel: 'info', criado_em: '2026-10-19 09:00:00', por: 'Jaqueline' }
+  ],
+  appAtual: null, telaAtual: 'inicio',
+  rotas: { inicio: '#inicio', catalogo: '#catalogo', avisos: '#avisos', gerenciar: '#gerenciar', pessoas: '#pessoas' },
+  marca: { nome: 'Disktrans', sub: 'Hub · Operações', logo: 'D', logoLargo: LOGO_DK }
+};
+lerHash(window.HUB);
+</script>
+<script src="hub.js" defer></script>
+  <div class="pagina" id="telaHub">
+    <header class="topo">
+      <div class="topo-tit"><h1 id="tituloTela">Início</h1></div>
+      <button type="button" class="busca-gatilho" data-hubm-busca aria-label="Buscar (Ctrl K)">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span>Buscar aplicativo…</span><kbd>Ctrl K</kbd>
+      </button>
+      <span class="topo-dir" aria-hidden="true"></span>
+    </header>
+    <main class="miolo" id="hubMiolo"></main>
+  </div>
+
+  <!-- APP dentro do hub: mesmo menu, cabeçalho de app, componentes do kit -->
+  <div id="telaApp" hidden>
+    <header class="app-topo">
+      <span id="appHex"></span>
+      <div class="app-titulo">
+        <nav class="app-trilha" aria-label="Você está em"><a href="#inicio">Início</a><span aria-hidden="true">›</span><span id="appTrilha"></span></nav>
+        <h1 id="appNome"></h1><p id="appResumo"></p>
+      </div>
+      <div class="app-acoes"><span class="sub" id="appBase"></span></div>
+    </header>
+
+    <!-- Trocas em Aberto: visão por tipo de unidade (resumo gravado de hora em hora pelo atualizar_disktrocas.py) -->
+    <main class="app-miolo" id="appTrocas" hidden>
+      <div class="kpis" id="taKpis" aria-live="polite"></div>
+      <div class="card pad">
+        <h3 style="margin-bottom:10px">Trocas abertas por tipo de unidade</h3>
+        <div class="tabela-caixa"><table class="tabela">
+          <thead><tr><th>Unidade</th><th class="num">Abertas</th><th class="num">Vencidas</th><th class="num">% vencidas</th><th class="num" id="taMesCab">Trocas no mês anterior</th><th class="num">% fora do prazo</th></tr></thead>
+          <tbody id="taCorpo"><tr><td colspan="6" class="sub">Carregando…</td></tr></tbody>
+        </table></div>
+      </div>
+      <p class="sub">Só trocas (tipo Troca), contadas em equipamentos. Abertas de qualquer data; vencida = prazo já passou e a troca segue aberta. Mês anterior: trocas abertas naquele mês e quantas fecharam ou seguem fora do prazo. Mesma base e regra do DiskTrocas. Fonte: <code>disktrans_gold</code> (Fabric).</p>
+    </main>
+
+    <!-- DiskTrocas: acompanhamento das solicitações (dados do Fabric, atualizados por scripts/atualizar_disktrocas.py) -->
+    <main class="app-miolo dt" id="appDisktrocas" hidden>
+      <div class="kpis dt-kpis" id="dtKpis" aria-live="polite"></div>
+      <div class="barra-filtro">
+        <label class="filtro-campo" for="dtBusca">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="dtBusca" placeholder="Buscar em todas as colunas: solicitação, cliente, cód. do cliente, CNPJ, nº Disk, romaneio, status, data…" autocomplete="off">
+        </label>
+        <span class="sub" id="dtConta"></span>
+      </div>
+      <div class="tabela-caixa dt-caixa">
+        <table class="tabela dt-tabela">
+          <thead><tr id="dtCab"></tr></thead>
+          <tbody id="dtCorpo"></tbody>
+        </table>
+      </div>
+      <div class="dt-mais"><button type="button" class="bt sec peq" id="dtMais" hidden>Mostrar mais 200</button></div>
+      <p class="sub">Uma linha por solicitação. Entram Troca, Troca de Modelo, Envio, Encomenda e Devolução: as abertas de qualquer data e as entregues desde o dia 1º do mês. Os indicadores contam equipamentos, com as solicitações embaixo, e acompanham a busca. Fonte: <code>disktrans_gold</code> (Fabric).</p>
+    </main>
+
+    <main class="app-miolo" id="appSemAcesso" hidden>
+      <div class="card vazio"><b>Você ainda não tem acesso a este aplicativo.</b><span>Peça a um administrador do hub para liberar em Pessoas e acessos.</span><a href="#inicio">Voltar ao início</a></div>
+    </main>
+
+    <!-- Demais apps: moldura vazia -->
+    <main class="app-miolo" id="appVazio" hidden>
+      <div class="card vazio"><b>Este app ainda não foi ligado ao kit.</b><span>A moldura (menu, cabeçalho e componentes) já está pronta. Falta só o conteúdo dele.</span></div>
+    </main>
+  </div>
+
+<style>
+  .dt-kpis{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .dt-kpis .det + .det{margin-top:0}
+  .kpi.dt-atraso::before{background:var(--erro)}
+  .kpi-duplo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kpi-duplo > div + div{border-left:1px solid var(--fio);padding-left:12px}
+  .kpi-duplo .val{font-size:24px}
+  .dt-tabela{min-width:1180px}
+  .dt-tabela th{cursor:pointer;user-select:none}
+  .dt-tabela th:hover{color:var(--tinta)}
+  .dt-tabela th[aria-sort]::after{content:' ↓';color:var(--acento-tinta)}
+  .dt-tabela th[aria-sort="ascending"]::after{content:' ↑'}
+  .dt-tabela th:focus-visible{outline:2px solid var(--acento);outline-offset:-2px}
+  .dt-tabela td{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .dt-tabela td.dt-cli{white-space:normal;min-width:200px;max-width:280px}
+  .dt-tabela td.dt-sol{display:flex;align-items:center;gap:6px}
+  .dt-exp{width:24px;height:24px;flex:none;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--tinta-3);border:1px solid var(--fio-2);background:var(--surf)}
+  .dt-exp:hover{color:var(--base);border-color:var(--base-medio)}
+  .dt-exp:focus-visible{outline:2px solid var(--acento);outline-offset:1px}
+  .dt-exp svg{transition:transform .15s ease}
+  .dt-exp[aria-expanded="true"]{color:var(--base);background:var(--base-fundo);border-color:#C4DAF0}
+  .dt-exp[aria-expanded="true"] svg{transform:rotate(90deg)}
+  .dt-tabela tr.dt-aberta td{background:#F8FAFD}
+  .dt-tabela tr.dt-det td{padding:0 12px 12px 42px;background:#F8FAFD;border-bottom:1px solid var(--fio)}
+  .dt-det-caixa{display:flex;flex-direction:column;gap:8px;background:var(--surf);border:1px solid var(--fio);border-radius:var(--raio-p);padding:10px 12px;max-width:640px}
+  .dt-det-caixa > b{font-size:12.5px;color:var(--tinta-2)}
+  .dt-mini{border-collapse:collapse;font-size:12.5px;width:100%}
+  .dt-mini th{position:static;background:none;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--tinta-3);padding:4px 8px;border-bottom:1px solid var(--fio)}
+  .dt-mini td{padding:5px 8px;border-bottom:1px solid #F0F2F6;background:none!important}
+  .dt-mini tr:last-child td{border-bottom:0}
+  .dt-nada{color:var(--tinta-3);font-style:italic}
+  .dt-achou{background:var(--acento-fundo);color:var(--acento-tinta);font-weight:700;border-radius:4px;padding:1px 4px;box-shadow:inset 0 0 0 1px var(--acento-borda)}
+  .dt-tabela .dt-cnpj{display:block;font-size:11.5px;color:var(--tinta-3);margin-top:1px}
+  .dt-tabela td.dt-at{white-space:normal;min-width:150px;max-width:200px}
+  .dt-tabela td.dt-rom{white-space:normal;max-width:150px}
+  .dt-tabela .mono{font-size:12.5px}
+  .dt-tabela .vencido{color:var(--erro);font-weight:700}
+  .selo.erro{background:var(--erro-fundo);color:var(--erro)}
+  .selo.amb{background:var(--alerta-fundo);color:#7A4A00}
+  .selo.sem{background:transparent;color:var(--tinta-3);box-shadow:inset 0 0 0 1px var(--fio-2)}
+  .dt-tabela td.dt-vazio{text-align:center;padding:32px 12px;color:var(--tinta-3);white-space:normal}
+  .dt-mais{display:flex;justify-content:center}
+  .dt-mais:has(button[hidden]){display:none}
+  .dt .filtro-campo{flex-basis:420px}
+  .dt-caixa{max-height:68vh}
+  @media (max-width:640px){.kpi-duplo .val{font-size:21px}}
+</style>
+<script>
+/* DiskTrocas: indicadores + tabela com busca em todas as colunas. Lê #dadosDisktrocas. */
+window.disktrocas = (function () {
+  var D = null, filtradas = [], mostrar = 200, ordem = { col: -1, asc: true }, ligado = false, abertas = {}, termosAtuais = [];
+  var C = { sol: 0, at: 1, cli: 2, qtd: 3, tipo: 4, rom: 5, roms: 6, dsol: 7, dprazo: 8, dent: 9, st: 10, eqAb: 11, eqAt: 12, eqCt: 13, eqAtCt: 14, fil: 15, cnpj: 16, itens: 17, codcli: 18, loja: 19 };
+  var COLS = [
+    ['Solicitação', C.sol], ['Atendimento', C.at], ['Nome fantasia', C.cli], ['Qtd. equip.', C.qtd, 'num'], ['Tipo', C.tipo],
+    ['Status do romaneio', C.rom], ['Nº romaneio', C.roms], ['Data solicitação', C.dsol], ['Data prazo', C.dprazo],
+    ['Data entrega', C.dent], ['Status', C.st]
+  ];
+  var SELO_ST = { 'Envio em atraso': 'erro', 'Em aberto': 'azul', 'Entregue atrasado': 'amb', 'Entregue': 'ok' };
+  var SELO_ROM = { 'Controle Entrega': '', 'Pendente': 'cinza', 'Transp/Cliente Retira': 'azul', 'Sem romaneio': 'sem', 'Encerrado': 'ok' };
+  var hoje = (function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })(new Date());
+
+  function sem(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function br(n) { return Number(n || 0).toLocaleString('pt-BR'); }
+  function dataBr(s) { return s ? s.slice(8, 10) + '/' + s.slice(5, 7) + '/' + s.slice(2, 4) : ''; }
+  function el(t, c, x) { var e = document.createElement(t); if (c) { e.className = c; } if (x != null) { e.textContent = x; } return e; }
+  function selo(txt, tipo) { return el('span', 'selo' + (tipo ? ' ' + tipo : ''), txt); }
+  function plural(n, um, varios) { return br(n) + ' ' + (n === 1 ? um : varios); }
+
+  var carregadoEm = 0, carregando = null;
+  var CAMPOS = 'sol,atendimento,cliente,qtd,tipo,romaneio_status,romaneios,data_sol,data_prazo,data_entrega,status,eq_aberto,eq_atraso,eq_controle,eq_atraso_controle,filial,cnpj,itens,cod_cliente,loja_cliente';
+  /* Lê do Supabase em páginas de 1.000 (teto do Supabase) e guarda por 10 minutos. */
+  function carregar() {
+    if (D && Date.now() - carregadoEm < 600000) { return Promise.resolve(); }
+    if (carregando) { return carregando; }
+    var sb = window.hubSupabase, linhas = [];
+    function pagina(de) {
+      return sb.from('disktrocas_solicitacoes').select(CAMPOS).order('ordem').range(de, de + 999).then(function (r) {
+        if (r.error) { throw r.error; }
+        linhas = linhas.concat(r.data);
+        return r.data.length === 1000 ? pagina(de + 1000) : null;
+      });
+    }
+    carregando = Promise.all([pagina(0), sb.from('disktrocas_base').select('base').eq('id', 1).maybeSingle()]).then(function (res) {
+      if (res[1].error) { throw res[1].error; }
+      var cols = CAMPOS.split(',');
+      D = { base: res[1].data ? res[1].data.base : '', linhas: linhas.map(function (o) { return cols.map(function (c) { return o[c] == null ? '' : o[c]; }); }) };
+      D.linhas.forEach(function (r) {
+        r.busca = sem([r[C.fil] + '/' + r[C.sol]].concat(r.slice(0, 11), [dataBr(r[C.dsol]), dataBr(r[C.dprazo]), dataBr(r[C.dent]), r[C.cnpj] || '', String(r[C.cnpj] || '').replace(/\D/g, ''), (r[C.itens] || []).map(function (i) { return i[1] + ' ' + i[2]; }).join(' '), r[C.codcli] ? r[C.codcli] + ' ' + r[C.codcli] + '/' + r[C.loja] + ' ' + r[C.codcli] + '-' + r[C.loja] + ' ' + r[C.codcli] + r[C.loja] : '']).join(' '));
+      });
+      carregadoEm = Date.now();
+    }).then(function () { carregando = null; }, function (e) { carregando = null; throw e; });
+    return carregando;
+  }
+
+  function kpis(rows) {
+    var t = { ab: 0, abS: 0, ct: 0, ctS: 0, at: 0, atS: 0, atCt: 0, tr: 0, trS: 0, nv: 0, nvS: 0 };
+    rows.forEach(function (r) {
+      if (r[C.eqAb]) { t.ab += r[C.eqAb]; t.abS++; }
+      if (r[C.eqCt]) { t.ct += r[C.eqCt]; t.ctS++; }
+      if (r[C.eqAt]) { t.at += r[C.eqAt]; t.atS++; t.atCt += r[C.eqAtCt]; }
+      if (r[C.eqAb] && (r[C.tipo] === 'Troca' || r[C.tipo] === 'Troca de Modelo')) { t.tr += r[C.eqAb]; t.trS++; }
+      if (r[C.eqAb] && (r[C.tipo] === 'Envio' || r[C.tipo] === 'Encomenda')) { t.nv += r[C.eqAb]; t.nvS++; }
+    });
+    var box = document.getElementById('dtKpis'); box.textContent = '';
+    function card(cls, rot, val, dets) {
+      var k = el('div', 'kpi' + (cls ? ' ' + cls : '')); k.append(el('div', 'rot', rot), el('div', 'val', br(val)));
+      dets.forEach(function (d) { k.appendChild(el('div', 'det', d)); }); box.appendChild(k);
+    }
+    card('destaque', 'Em aberto', t.ab, [plural(t.abS, 'solicitação', 'solicitações')]);
+    card('', 'Em controle de entrega', t.ct, [plural(t.ctS, 'solicitação', 'solicitações')]);
+    card('dt-atraso', 'Em atraso', t.at, [br(t.atCt) + ' em controle de entrega', plural(t.atS, 'solicitação', 'solicitações')]);
+    var d = el('div', 'kpi'), g = el('div', 'kpi-duplo');
+    [['Troca', t.tr, t.trS], ['Novo', t.nv, t.nvS]].forEach(function (x) {
+      var c = el('div'); c.append(el('div', 'rot', x[0]), el('div', 'val', br(x[1])), el('div', 'det', plural(x[2], 'solicitação', 'solicitações'))); g.appendChild(c);
+    });
+    d.title = 'Em aberto. Troca = Troca + Troca de Modelo. Novo = Envio + Encomenda.'; d.appendChild(g); box.appendChild(d);
+  }
+
+  function cabecalho() {
+    var tr = document.getElementById('dtCab'); tr.textContent = '';
+    COLS.forEach(function (c, i) {
+      var th = el('th', c[2] || '', c[0]); th.tabIndex = 0; th.scope = 'col';
+      if (ordem.col === i) { th.setAttribute('aria-sort', ordem.asc ? 'ascending' : 'descending'); }
+      function ordenar() { ordem = { col: i, asc: ordem.col === i ? !ordem.asc : true }; aplicar(true); }
+      th.addEventListener('click', ordenar);
+      th.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ordenar(); } });
+      tr.appendChild(th);
+    });
+  }
+
+  function celCliente(r) {
+    var td = el('td', 'dt-cli', r[C.cli]);
+    var info = [];
+    if (r[C.codcli]) { info.push('Cód. ' + r[C.codcli] + ' · loja ' + r[C.loja]); }
+    if (r[C.cnpj]) { info.push(r[C.cnpj]); }
+    if (info.length) { td.appendChild(el('small', 'dt-cnpj mono', info.join(' · '))); }
+    return td;
+  }
+
+  /* ── carrinhos (números Disk) por solicitação ── */
+  function chave(r) { return r[C.fil] + '|' + r[C.sol] + '|' + r[C.tipo]; }
+  function bateDisk(r) {
+    var ts = termosAtuais.filter(function (t) { return t.length >= 3; });
+    return ts.length > 0 && (r[C.itens] || []).some(function (i) {
+      return ts.some(function (t) { return sem(i[1]).indexOf(t) !== -1 || sem(i[2]).indexOf(t) !== -1; });
+    });
+  }
+  function aberta(r) { var k = chave(r); return Object.prototype.hasOwnProperty.call(abertas, k) ? abertas[k] : bateDisk(r); }
+  function disk(v, vazio) {
+    if (!v) { return el('span', 'dt-nada', vazio); }
+    var s = el('span', 'mono', v);
+    if (termosAtuais.some(function (t) { return t.length >= 3 && sem(v).indexOf(t) !== -1; })) { s.className = 'mono dt-achou'; }
+    return s;
+  }
+  function detalhe(r) {
+    var tr = el('tr', 'dt-det'), td = el('td'); td.colSpan = COLS.length;
+    var itens = r[C.itens] || [], novo = r[C.tipo] === 'Envio' || r[C.tipo] === 'Encomenda', dev = r[C.tipo] === 'Devolução';
+    var box = el('div', 'dt-det-caixa');
+    box.appendChild(el('b', '', plural(itens.length, 'carrinho', 'carrinhos') + ' nesta solicitação'));
+    if (!itens.length) { box.appendChild(el('p', 'sub', 'Sem itens na base para esta solicitação.')); td.appendChild(box); tr.appendChild(td); return tr; }
+    var t = el('table', 'dt-mini'), h = el('tr');
+    ['Item', 'Sai do cliente', 'Entrou no cliente', 'Atraso'].forEach(function (x, n) { var th = el('th', n === 3 ? 'num' : '', x); th.scope = 'col'; h.appendChild(th); });
+    var th0 = el('thead'); th0.appendChild(h); t.appendChild(th0);
+    var tb = el('tbody');
+    itens.forEach(function (i) {
+      var l = el('tr'), a = el('td', 'num');
+      if (i[3] > 0) { a.appendChild(el('span', 'vencido', plural(i[3], 'dia útil', 'dias úteis'))); } else { a.textContent = 'no prazo'; }
+      var sai = el('td'); sai.appendChild(disk(i[1], novo ? 'equipamento novo' : '—'));
+      var entra = el('td'); entra.appendChild(disk(i[2], dev ? 'devolução (sem entrega)' : (r[C.eqAb] ? 'aguardando rota' : '—')));
+      l.append(el('td', 'mono', i[0]), sai, entra, a); tb.appendChild(l);
+    });
+    t.appendChild(tb); box.appendChild(t); td.appendChild(box); tr.appendChild(td);
+    return tr;
+  }
+  function botaoExpandir(r) {
+    var aberto = aberta(r), b = el('button', 'dt-exp');
+    b.type = 'button'; b.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+    b.setAttribute('aria-label', (aberto ? 'Esconder' : 'Ver') + ' os carrinhos da solicitação ' + r[C.sol]);
+    b.title = aberto ? 'Esconder carrinhos' : 'Ver carrinhos (nº Disk)';
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+    b.addEventListener('click', function () { abertas[chave(r)] = !aberto; linhas(); });
+    return b;
+  }
+
+  function linhas() {
+    var tb = document.getElementById('dtCorpo'); tb.textContent = '';
+    if (!filtradas.length) {
+      var tr0 = el('tr'), td0 = el('td', 'dt-vazio', D.linhas.length ? 'Nada encontrado com esse filtro.' : 'Ainda não há dados. A primeira atualização preenche esta tabela.');
+      td0.colSpan = COLS.length; tr0.appendChild(td0); tb.appendChild(tr0);
+    }
+    filtradas.slice(0, mostrar).forEach(function (r) {
+      var tr = el('tr'), sol = el('td', 'mono dt-sol'); sol.title = 'Filial ' + r[C.fil];
+      sol.append(botaoExpandir(r), document.createTextNode(r[C.sol]));
+      if (aberta(r)) { tr.className = 'dt-aberta'; }
+      var prazo = el('td', '', dataBr(r[C.dprazo]));
+      if (r[C.eqAb] && r[C.dprazo] && r[C.dprazo] < hoje) { prazo.className = 'vencido'; }
+      var rom = el('td'); rom.appendChild(selo(r[C.rom], SELO_ROM[r[C.rom]]));
+      var st = el('td'); st.appendChild(selo(r[C.st], SELO_ST[r[C.st]]));
+      tr.append(sol, el('td', 'dt-at', r[C.at]), celCliente(r), el('td', 'num', br(r[C.qtd])), el('td', '', r[C.tipo]),
+        rom, el('td', 'mono dt-rom', r[C.roms] || '—'), el('td', '', dataBr(r[C.dsol])), prazo, el('td', '', dataBr(r[C.dent]) || '—'), st);
+      tb.appendChild(tr);
+      if (aberta(r)) { tb.appendChild(detalhe(r)); }
+    });
+    var mais = document.getElementById('dtMais'); mais.hidden = filtradas.length <= mostrar;
+    document.getElementById('dtConta').textContent = 'Mostrando ' + br(Math.min(mostrar, filtradas.length)) + ' de ' + plural(filtradas.length, 'solicitação', 'solicitações');
+  }
+
+  function aplicar(manterTopo) {
+    var termos = sem(document.getElementById('dtBusca').value).split(/\s+/).filter(Boolean);
+    termosAtuais = termos; abertas = {};
+    filtradas = D.linhas.filter(function (r) { return termos.every(function (t) { return r.busca.indexOf(t) !== -1; }); });
+    if (ordem.col >= 0) {
+      var k = COLS[ordem.col][1], s = ordem.asc ? 1 : -1;
+      filtradas = filtradas.slice().sort(function (a, b) {
+        var x = a[k], y = b[k];
+        if (typeof x === 'number') { return (x - y) * s; }
+        x = String(x || ''); y = String(y || '');
+        if (!x && y) { return 1; } if (x && !y) { return -1; }
+        return x.localeCompare(y, 'pt-BR', { numeric: true }) * s;
+      });
+    }
+    if (!manterTopo) { mostrar = 200; }
+    cabecalho(); kpis(filtradas); linhas();
+  }
+
+  function quando(b) {
+    if (!b) { return ''; }
+    var d = new Date(b), p = function (n) { return String(n).padStart(2, '0'); };
+    return isNaN(d) ? '' : p(d.getDate()) + '/' + p(d.getMonth() + 1) + ' às ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function montar() {
+    if (!ligado) {
+      ligado = true;
+      var t; document.getElementById('dtBusca').addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { aplicar(); }, 150); });
+      document.getElementById('dtMais').addEventListener('click', function () { mostrar += 200; linhas(); });
+    }
+    if (!window.hubSupabase || !window.HUB.usuario || !window.HUB.usuario.nome) { return; }
+    var base = document.getElementById('appBase');
+    if (!D) { base.textContent = 'Carregando…'; document.getElementById('dtConta').textContent = 'Carregando dados…'; }
+    carregar().then(function () {
+      base.textContent = D.base ? 'Base de ' + quando(D.base) : 'Sem dados ainda';
+      aplicar(true);
+    }).catch(function (e) {
+      base.textContent = '';
+      document.getElementById('dtConta').textContent = 'Não consegui carregar os dados (' + (e.message || 'sem resposta') + '). Atualize a página; se continuar, avise o administrador do hub.';
+    });
+  }
+  return { montar: montar };
+})();
+
+/* Trocas em Aberto: lê o resumo (Supabase no Netlify; dados embutidos na página privada). */
+window.trocasAbertas = (function () {
+  'use strict';
+  function el(t, c, x) { var e = document.createElement(t); if (c) { e.className = c; } if (x != null) { e.textContent = x; } return e; }
+  function br(n) { return Number(n || 0).toLocaleString('pt-BR'); }
+  function pct(a, b) { return b ? (a / b * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%' : '—'; }
+  function quando(b) {
+    if (!b) { return ''; }
+    var d = new Date(b), p = function (n) { return String(n).padStart(2, '0'); };
+    return isNaN(d) ? '' : p(d.getDate()) + '/' + p(d.getMonth() + 1) + ' às ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function carregar() {
+    if (window.hubSupabase) {
+      return window.hubSupabase.from('hub_resumos').select('dados, base').eq('app', 'trocas-abertas').maybeSingle().then(function (r) {
+        if (r.error) { throw r.error; }
+        return r.data ? Object.assign({}, r.data.dados, { base: r.data.base }) : null;
+      });
+    }
+    try { var d = JSON.parse(document.getElementById('dadosTrocasAbertas').textContent); return Promise.resolve(d && d.linhas ? d : null); }
+    catch (e) { return Promise.resolve(null); }
+  }
+  function desenhar(d) {
+    var t = d.total, mes = d.mes_ant_nome.charAt(0).toUpperCase() + d.mes_ant_nome.slice(1);
+    var k = document.getElementById('taKpis'); k.textContent = '';
+    [['destaque', 'Trocas em aberto', t.abertas, 'equipamentos aguardando troca'],
+     ['', 'Com prazo vencido', t.vencidas, pct(t.vencidas, t.abertas) + ' das abertas'],
+     ['', 'Trocas em ' + d.mes_ant_nome, t.mes_ant, pct(t.mes_ant_atraso, t.mes_ant) + ' fora do prazo'],
+     ['', 'Frota locada', d.frota, 'equipamentos em contrato ativo']].forEach(function (c) {
+      var x = el('div', 'kpi ' + c[0]); x.append(el('div', 'rot', c[1]), el('div', 'val', br(c[2])), el('div', 'det', c[3])); k.appendChild(x);
+    });
+    document.getElementById('taMesCab').textContent = 'Trocas em ' + d.mes_ant_nome;
+    var tb = document.getElementById('taCorpo'); tb.textContent = '';
+    d.linhas.concat([{ rotulo: 'Total', abertas: t.abertas, vencidas: t.vencidas, mes_ant: t.mes_ant, mes_ant_atraso: t.mes_ant_atraso, total: true }]).forEach(function (l) {
+      var tr = el('tr');
+      [l.rotulo, br(l.abertas), br(l.vencidas), pct(l.vencidas, l.abertas), br(l.mes_ant), pct(l.mes_ant_atraso, l.mes_ant)].forEach(function (v, i) {
+        var td = el('td', i ? 'num' : ''); if (l.total) { td.appendChild(el('b', '', v)); } else { td.textContent = v; } tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    document.getElementById('appBase').textContent = d.base ? 'Base de ' + quando(d.base) : '';
+  }
+  function montar() {
+    if (window.hubSupabase && !(window.HUB.usuario && window.HUB.usuario.nome)) { return; }
+    document.getElementById('appBase').textContent = 'Carregando…';
+    carregar().then(function (d) {
+      if (!d) {
+        document.getElementById('appBase').textContent = '';
+        document.getElementById('taCorpo').innerHTML = '<tr><td colspan="6" class="sub">Ainda não há dados. A próxima atualização preenche esta tela.</td></tr>';
+        return;
+      }
+      desenhar(d);
+    }).catch(function (e) {
+      document.getElementById('appBase').textContent = '';
+      document.getElementById('taCorpo').innerHTML = '';
+      var tr = document.createElement('tr'), td = document.createElement('td'); td.colSpan = 6; td.className = 'sub';
+      td.textContent = 'Não consegui carregar os dados (' + (e.message || 'sem resposta') + '). Atualize a página; se continuar, avise o administrador do hub.';
+      tr.appendChild(td); document.getElementById('taCorpo').appendChild(tr);
+    });
+  }
+  return { montar: montar };
+})();
+
+function montarVista() {
+  if (window.hubColocarSair) { window.hubColocarSair(); }
+  var H = window.HUB, t = { inicio: 'Início', catalogo: 'Catálogo', avisos: 'Avisos', gerenciar: 'Gerenciar apps', pessoas: 'Pessoas e acessos' };
+  if (H.appAtual) {
+    var a = H.apps.filter(function (x) { return x.pasta === H.appAtual; })[0];
+    if (!a) { return; }
+    document.getElementById('telaHub').hidden = true; document.getElementById('telaApp').hidden = false;
+    var telas = { 'trocas-abertas': 'appTrocas', 'disktrocas': 'appDisktrocas' }, alvo = a.pode === false ? 'appSemAcesso' : (telas[a.pasta] || 'appVazio');
+    ['appTrocas', 'appDisktrocas', 'appVazio', 'appSemAcesso'].forEach(function (id) { document.getElementById(id).hidden = id !== alvo; });
+    document.getElementById('appBase').textContent = '';
+    if (alvo === 'appTrocas') { window.trocasAbertas.montar(); }
+    if (alvo === 'appDisktrocas') { window.disktrocas.montar(); }
+    document.title = a.nome + ' · Hub Disktrans';
+    document.getElementById('appNome').textContent = document.getElementById('appTrilha').textContent = a.nome;
+    document.getElementById('appResumo').textContent = a.resumo;
+    setTimeout(function () { document.getElementById('appHex').innerHTML = window.hubMenu.hex(a, 34); });
+  } else {
+    document.getElementById('telaHub').hidden = false; document.getElementById('telaApp').hidden = true;
+    document.getElementById('tituloTela').textContent = t[H.telaAtual] || 'Início';
+    document.title = (t[H.telaAtual] || 'Início') + ' · Hub Disktrans';
+    if (window.hubTelaExtra) { window.hubTelaExtra(H.telaAtual); }
+  }
+}
+document.addEventListener('DOMContentLoaded', montarVista);
+window.addEventListener('hashchange', function () {
+  lerHash(window.HUB); window.hubMenu.reiniciar(); montarVista(); window.scrollTo(0, 0);
+});
+</script>
+
+<!-- Login: só quem o admin cadastrou no Supabase (Authentication → Users) -->
+<div class="login" id="login" hidden>
+  <form class="login-caixa" id="loginForm" novalidate>
+    <span class="login-logo" id="loginLogo"></span>
+    <h1>Hub Disktrans</h1>
+    <p class="sub">Entre com o e-mail e a senha que o administrador cadastrou para você.</p>
+    <div class="campo"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" autocomplete="username" required></div>
+    <div class="campo"><label for="loginSenha">Senha</label><input type="password" id="loginSenha" autocomplete="current-password" required></div>
+    <p class="aviso erro" id="loginErro" hidden></p>
+    <button type="submit" class="bt pri" id="loginBotao">Entrar</button>
+    <p class="sub">Sem acesso? Peça ao administrador do hub.</p>
+  </form>
+</div>
+
+<script src="hub-auth.js"></script>
+<script src="hub-pessoas.js"></script>
+</body>
+</html>

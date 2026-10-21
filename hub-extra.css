@@ -1,0 +1,40 @@
+/* hub-extra.css — login e telas de admin da versão Netlify (usa os tokens do hub.css) */
+
+/* login */
+.login{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+  background:radial-gradient(90% 120% at 100% 100%,rgba(var(--acento-rgb),.35) 0%,rgba(var(--acento-rgb),0) 55%),linear-gradient(125deg,#011847 0%,#022064 50%,#004C96 100%)}
+.login-caixa{width:min(400px,100%);background:var(--surf);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -20px rgba(2,32,100,.6)}
+.login-logo{display:block;width:150px;padding:10px 12px;border-radius:12px;background:var(--navy)}
+.login-logo svg{display:block;width:100%;height:auto}
+.login h1{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.login .bt.pri{width:100%;min-height:44px}
+.hubm-sair{font-weight:500;color:#93A3C6}
+
+/* Pessoas e acessos */
+.pp-lista{display:flex;flex-direction:column;gap:10px}
+.pp-incluir,.pp-pessoa{padding:0;overflow:hidden}
+.pp-sum{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;list-style:none;flex-wrap:wrap}
+.pp-sum::-webkit-details-marker{display:none}
+.pp-sum:hover{background:#FAFBFD}
+.pp-sum:focus-visible{outline:2px solid var(--acento);outline-offset:-2px}
+.pp-mais{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--acento);color:var(--sobre-acento);font:800 18px var(--titulo)}
+.pp-ini{width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;background:#E9EBF1;color:var(--tinta-2);font-weight:800;font-size:12.5px}
+.pp-txt{flex:1;min-width:200px}
+.pp-txt b{display:flex;align-items:center;gap:4px;font-size:14px}
+.pp-txt small{display:block;font-size:12.5px;color:var(--tinta-3);overflow-wrap:anywhere}
+.pp-selos{display:flex;gap:6px;flex-wrap:wrap}
+.pp-inativa .pp-txt,.pp-inativa .pp-ini{opacity:.6}
+.pp-form{display:flex;flex-direction:column;gap:12px;padding:4px 16px 18px;border-top:1px solid var(--fio)}
+.pp-form > .grade-3,.pp-form > .campo{margin-top:12px}
+.pp-sub{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3);margin-top:4px}
+.pp-opcoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.pp-apps{display:flex;flex-direction:column;gap:8px}
+.pp-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.pp-grade.pp-off{opacity:.45}
+.pp-app{align-items:center}
+.pp-app input{margin-top:0}
+.pp-app span:last-child{font-size:13.5px;font-weight:600}
+.pp-senha{font:500 13px var(--mono);border:1px solid var(--fio-2);border-radius:var(--raio-p);padding:6px 10px;min-height:32px;width:220px;max-width:100%}
+.pp-senha:focus{outline:none;border-color:var(--acento);box-shadow:0 0 0 3px rgba(var(--acento-rgb),.15)}
+.campo .bt.fant{align-self:flex-start;padding:0}
+@media (max-width:900px){.pp-form > .grade-3{grid-template-columns:1fr}}
