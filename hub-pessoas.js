@@ -107,7 +107,8 @@
       var ini = el('span', 'pp-ini', iniciais(p.nome || p.email));
       var tx = el('span', 'pp-txt'), n = el('b', '', p.nome || p.email);
       if (p.voce) { n.appendChild(el('span', 'novo-tag', 'Você')); }
-      tx.append(n, el('small', '', p.email + ' · ' + quando(p.ultimo_acesso)));
+      tx.append(n, el('small', '', p.email + ' · ' + quando(p.uso ? p.uso.ultimo : p.ultimo_acesso)));
+      tx.appendChild(el('small', 'pp-uso', textoUso(p.uso)));
       var selos = el('span', 'pp-selos');
       selos.appendChild(el('span', 'selo' + (p.papel === 'admin' ? '' : ' azul'), p.papel === 'admin' ? 'Admin' : 'Leitor'));
       selos.appendChild(el('span', 'selo cinza', p.papel === 'admin' || p.todos_apps ? 'Todos os apps' : (p.apps || []).length + ' app' + ((p.apps || []).length === 1 ? '' : 's')));
@@ -149,11 +150,30 @@
       return d;
     }
 
+    /* "12 acessos em 7 dias · 30 em 30 dias · mais usado: DiskTrocas (8)" */
+    function textoUso(u) {
+      if (!u) { return 'nenhum acesso registrado nos últimos 30 dias'; }
+      var nome = u.app_mais === 'gerencial-dados' ? 'Gerencial de dados'
+        : ((H.apps || []).filter(function (a) { return a.pasta === u.app_mais; })[0] || {}).nome || u.app_mais;
+      return br(u.acessos_7d) + (u.acessos_7d === 1 ? ' acesso' : ' acessos') + ' em 7 dias · ' + br(u.acessos_30d) + ' em 30 dias' +
+        (u.app_mais ? ' · mais usado: ' + nome + ' (' + br(u.app_mais_n) + ')' : '');
+    }
+    /* resumo de uso por pessoa (função hub_resumo_acessos, só admin); se falhar, a lista sai sem ele */
+    function lerUso() {
+      return window.hubSupabase.rpc('hub_resumo_acessos').then(function (r) {
+        var m = {}; (r.data || []).forEach(function (u) { m[u.user_id] = u; }); return m;
+      }, function () { return {}; });
+    }
+
     function carregar() {
-      chamar({ acao: 'listar' }).then(function (r) {
+      Promise.all([chamar({ acao: 'listar' }), lerUso()]).then(function (res) {
+        var r = res[0], uso = res[1];
         var ps = r.pessoas || [];
+        ps.forEach(function (p) { p.uso = uso[p.user_id] || null; });
+        var ativos7 = ps.filter(function (p) { return p.ativo && p.uso && p.uso.acessos_7d > 0; }).length;
         kp.textContent = '';
         [['Pessoas no hub', ps.length, 'destaque', 'com acesso cadastrado'],
+         ['Usaram em 7 dias', ativos7, '', 'de ' + br(ps.filter(function (p) { return p.ativo; }).length) + ' pessoas ativas'],
          ['Admin', ps.filter(function (p) { return p.ativo && p.papel === 'admin'; }).length, '', 'gerenciam pessoas e veem tudo'],
          ['Leitor', ps.filter(function (p) { return p.ativo && p.papel === 'leitor'; }).length, '', 'usam os apps liberados'],
          ['Desativados', ps.filter(function (p) { return !p.ativo; }).length, '', 'sem acesso, histórico guardado']].forEach(function (k) {

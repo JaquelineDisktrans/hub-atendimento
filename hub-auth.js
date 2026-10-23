@@ -40,8 +40,31 @@
       H.favoritos = (f.favoritos || []).filter(function (p) { return H.apps.some(function (a) { return a.pasta === p && a.pode; }); });
       tela.hidden = true;
       window.hubMenu.reiniciar(); montarVista();
+      registrar(null); registrarTela();
     });
   }
+
+  /* Registro de acessos (hub_acessos): o Hub ao abrir e cada app aberto. O banco guarda no máximo 1 por pessoa e app
+     a cada 30 min; aqui só se evita chamar à toa. Falha no registro nunca atrapalha o uso. */
+  var registrados = {};
+  function registrar(app) {
+    var k = app || '(hub)', agora = Date.now();
+    if (registrados[k] && agora - registrados[k] < 30 * 60000) { return; }
+    registrados[k] = agora;
+    sb.rpc('hub_registrar_acesso', { p_app: app }).then(function () {}, function () {});
+  }
+  function registrarTela() {
+    if (!H.usuario || !H.usuario.nome) { return; }
+    if (H.appAtual) { registrar(H.appAtual); } else if (H.telaAtual === 'dados') { registrar('gerencial-dados'); }
+  }
+  window.addEventListener('hashchange', function () { setTimeout(registrarTela); });
+  /* apps de fora (outro site) abrem em nova aba: conta o clique */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href^="http"]');
+    if (!a || !H.usuario || !H.usuario.nome) { return; }
+    var app = (H.apps || []).filter(function (x) { return x.url && x.url === a.getAttribute('href'); })[0];
+    if (app) { registrar(app.pasta); }
+  }, true);
 
   form.addEventListener('submit', function (ev) {
     ev.preventDefault(); erro.hidden = true;
