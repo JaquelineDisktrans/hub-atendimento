@@ -22,6 +22,7 @@
     avisos: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/>',
     pessoas: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14a6 6 0 013.5 6"/>',
     gerenciar: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+    dados: '<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
     recolher: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 10l-2 2 2 2"/>',
     expandir: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/>',
     estrela: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',
@@ -89,7 +90,7 @@
       '<div class="hubm-grupo" id="hubmAberto" hidden><div class="hubm-titulo"><span class="hubm-txt">Aberto agora</span></div></div>' +
       '<div class="hubm-grupo" id="hubmFavoritos"><div class="hubm-titulo"><span class="hubm-txt">Favoritos</span></div></div>' +
       '<div class="hubm-pe">' +
-      (H.admin ? item('gerenciar', 'Gerenciar apps', H.novos ? '<span class="hubm-conta">' + (+H.novos) + '</span>' : '') + item('pessoas', 'Pessoas e acessos') : '') +
+      (H.admin ? item('dados', 'Gerencial de dados') + item('gerenciar', 'Gerenciar apps', H.novos ? '<span class="hubm-conta">' + (+H.novos) + '</span>' : '') + item('pessoas', 'Pessoas e acessos') : '') +
       '<button type="button" class="hubm-item hubm-modo" data-hubm-modo><span class="hubm-so-exp">' + svg(IC.recolher, 'hubm-ic') + '</span><span class="hubm-so-rec">' + svg(IC.expandir, 'hubm-ic') + '</span><span class="hubm-txt">Recolher menu</span></button>' +
       '<div class="hubm-quem"><span class="hubm-ini"></span><span class="hubm-txt"><b></b><small></small></span></div></div>';
     if (nav.querySelector('.hubm-marca b')) { nav.querySelector('.hubm-marca b').textContent = m.nome || 'Hub'; }
@@ -156,7 +157,7 @@
   function ligarBusca() {
     pal = document.getElementById('hubmPaleta'); campo = document.getElementById('hubmPaletaCampo'); lista = document.getElementById('hubmPaletaLista');
     var paginas = [{ nome: 'Início', href: rota('inicio'), tipo: 'Página' }, { nome: 'Catálogo', href: rota('catalogo'), tipo: 'Página' }, { nome: 'Avisos', href: rota('avisos'), tipo: 'Página' }];
-    if (H.admin) { paginas.push({ nome: 'Gerenciar apps', href: rota('gerenciar'), tipo: 'Admin' }, { nome: 'Pessoas e acessos', href: rota('pessoas'), tipo: 'Admin' }); }
+    if (H.admin) { paginas.push({ nome: 'Gerencial de dados', href: rota('dados'), tipo: 'Admin' }, { nome: 'Gerenciar apps', href: rota('gerenciar'), tipo: 'Admin' }, { nome: 'Pessoas e acessos', href: rota('pessoas'), tipo: 'Admin' }); }
     todos = appsMeus().map(function (a) {
       return { nome: a.nome, sub: a.resumo || a.area, href: a.href, tipo: a.area, hex: hex(a, 22), busca: semAcento(a.nome + ' ' + a.resumo + ' ' + a.area + ' ' + a.pasta) };
     }).concat(paginas.map(function (p) { return { nome: p.nome, sub: '', href: p.href, tipo: p.tipo, hex: '', busca: semAcento(p.nome) }; }));

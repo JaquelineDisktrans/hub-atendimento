@@ -38,8 +38,7 @@ var app = (function (a) { return a.map(function (x) { return Object.assign({ ati
   { pasta: 'portal-pedidos', nome: 'Portal de Pedidos', resumo: 'Solicitação de equipamentos pelo cliente. Abre o portal em outra aba, com login próprio', area: 'Comercial', icone: 'lista', cor: 'laranja', atalho: 'P', selo: 'Externo', responsavel: 'Comercial', url: 'https://portal-de-pedidos-disktrans.disktrans.com.br/' },
   { pasta: 'robo-whatsapp', nome: 'Robô WhatsApp', resumo: 'Disparo às concessionárias, triagem por menu e consulta de status no Chatwoot', area: 'Comercial', icone: 'conversa', cor: 'medio', atalho: 'W', selo: 'Beta', responsavel: 'Atendimento' },
   { pasta: 'forum-clientes', nome: 'Fórum de Clientes', resumo: 'Monta o deck de resultados para fóruns com clientes e parceiros', area: 'Comercial', icone: 'apresentacao', cor: 'azul', responsavel: 'Comercial' },
-  { pasta: 'especialista-dados', nome: 'Especialista de Dados', resumo: 'Perguntas sobre a operação respondidas direto do disktrans_gold', area: 'Dados', icone: 'ia', cor: 'navy', atalho: 'E', responsavel: 'Dados' },
-  { pasta: 'frota-locada', nome: 'Frota Locada', resumo: 'Equipamentos locados por cliente, modelo e unidade', area: 'Dados', icone: 'empilhadeira', cor: 'medio', responsavel: 'Dados' },
+  { pasta: 'especialista-dados', nome: 'Especialista de Dados', resumo: 'Perguntas sobre a operação respondidas direto do disktrans_gold', area: 'Dados', icone: 'ia', cor: 'navy', atalho: 'E', responsavel: 'Dados' },  { pasta: 'frota-locada', nome: 'Frota Locada', resumo: 'Equipamentos locados por cliente, modelo e unidade', area: 'Dados', icone: 'empilhadeira', cor: 'medio', responsavel: 'Dados' },
   { pasta: 'romaneios', nome: 'Romaneios', resumo: 'Entregas e retiradas do dia por rota e unidade', area: 'Logística', icone: 'caminhao', cor: 'azul', responsavel: 'Logística', pode: false },
   { pasta: 'oficina', nome: 'Oficina', resumo: 'Fila de manutenção na Matriz, Cravinhos e Contagem', area: 'Oficina', icone: 'ferramenta', cor: 'carvao', responsavel: 'Manutenção', ativo: false }
 ]);
@@ -53,7 +52,7 @@ window.HUB = {
     { texto: 'Trocas em Aberto e DiskTrocas agora se atualizam de hora em hora (seg a sex, 9h30 às 18h30), direto do disktrans_gold.', nivel: 'info', criado_em: '2026-10-19 09:00:00', por: 'Jaqueline' }
   ],
   appAtual: null, telaAtual: 'inicio',
-  rotas: { inicio: '#inicio', catalogo: '#catalogo', avisos: '#avisos', gerenciar: '#gerenciar', pessoas: '#pessoas' },
+  rotas: { inicio: '#inicio', catalogo: '#catalogo', avisos: '#avisos', dados: '#dados', gerenciar: '#gerenciar', pessoas: '#pessoas' },
   marca: { nome: 'Disktrans', sub: 'Hub Atendimento', logo: 'D', logoLargo: LOGO_DK }
 };
 lerHash(window.HUB);
@@ -115,6 +114,31 @@ lerHash(window.HUB);
       <p class="sub">Uma linha por solicitação. Entram Troca, Troca de Modelo, Envio, Encomenda e Devolução: as abertas de qualquer data e as entregues desde o dia 1º do mês. Os indicadores contam equipamentos, com as solicitações embaixo, e acompanham a busca. Fonte: <code>disktrans_gold</code> (Fabric).</p>
     </main>
 
+    <!-- Conferência de dados: cada fonte contra o disktrans_gold no mesmo recorte (gravado de hora em hora pelo atualizar_disktrocas.py) -->
+    <main class="app-miolo cf" id="appConferencia" hidden>
+      <div class="kpis" id="cfKpis" aria-live="polite"></div>
+      <div class="faixa info" id="cfRecortes"></div>
+      <div class="card pad">
+        <h3 style="margin-bottom:10px">Indicador a indicador</h3>
+        <div class="tabela-caixa"><table class="tabela cf-tabela">
+          <thead><tr><th scope="col">Indicador</th><th scope="col" class="num">Na fonte</th><th scope="col" class="num">No Fabric</th><th scope="col" class="num">Diferença</th><th scope="col">Situação</th></tr></thead>
+          <tbody id="cfCorpo"><tr><td colspan="5" class="sub">Carregando…</td></tr></tbody>
+        </table></div>
+      </div>
+      <details class="card pad cf-form">
+        <summary><b>Informar uma leitura nova do Power BI</b> <span class="sub">Copie os números da página Trocas Abertas e compare na hora. Fica só neste navegador.</span></summary>
+        <form id="cfForm" novalidate>
+          <div class="cf-campos" id="cfCampos"></div>
+          <p class="aviso erro" id="cfErro" hidden></p>
+          <div class="cf-acoes">
+            <button type="submit" class="bt pri">Comparar</button>
+            <button type="button" class="bt sec" id="cfLimpar">Voltar à leitura salva</button>
+          </div>
+        </form>
+      </details>
+      <p class="sub">Bate = até 0,5% (ou até 2 equip.) de diferença · Diferença pequena = até 2% (ou até 10 equip.) · Diverge = acima disso. Em percentuais, a régua é 0,2 e 1 ponto. O Fabric é sempre recortado com a mesma regra de tipos da fonte. Leituras do Power BI e do Painel FCA são feitas na tela, com a hora da base delas; quando a base da fonte é mais antiga que a do Fabric, parte da diferença é só o tempo. Fonte: <code>disktrans_gold</code> (Fabric).</p>
+    </main>
+
     <main class="app-miolo" id="appSemAcesso" hidden>
       <div class="card vazio"><b>Você ainda não tem acesso a este aplicativo.</b><span>Peça a um administrador do hub para liberar em Pessoas e acessos.</span><a href="#inicio">Voltar ao início</a></div>
     </main>
@@ -171,6 +195,26 @@ lerHash(window.HUB);
   .dt .filtro-campo{flex-basis:420px}
   .dt-caixa{max-height:68vh}
   @media (max-width:640px){.kpi-duplo .val{font-size:21px}}
+  /* Conferência de dados */
+  .kpi.cf-ok::before{background:var(--ok)}
+  .kpi.cf-amb::before{background:var(--alerta)}
+  .kpi.cf-erro::before{background:var(--erro)}
+  .cf-tabela{min-width:640px}
+  .cf-tabela td{font-variant-numeric:tabular-nums}
+  .cf-tabela tr.cf-grupo td{background:var(--fundo);padding-top:14px;border-bottom:1px solid var(--fio)}
+  .cf-tabela tr.cf-grupo b{font-family:var(--titulo);font-size:15px;color:var(--tinta)}
+  .cf-tabela tr.cf-grupo .sub{display:block;margin-top:2px}
+  .cf-tabela td.cf-ind{padding-left:22px}
+  .cf-tabela td.cf-ind.cf-sub{padding-left:38px;color:var(--tinta-3)}
+  .cf-tabela .cf-mais{color:var(--erro);font-weight:700}
+  .cf-tabela .cf-menos{color:var(--base-medio);font-weight:700}
+  .cf-form summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+  .cf-form summary:focus-visible{outline:2px solid var(--acento);outline-offset:3px;border-radius:6px}
+  .cf-form[open] summary{margin-bottom:14px}
+  .cf-campos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .cf-campos h4{grid-column:1/-1;margin:6px 0 -4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--tinta-3)}
+  .cf-acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .aviso.erro{background:var(--erro-fundo);border-color:#F4C4C6;color:#8E1B21;margin-top:12px}
 </style>
 <script>
 /* DiskTrocas: indicadores + tabela com busca em todas as colunas. Lê #dadosDisktrocas. */
@@ -437,17 +481,194 @@ window.trocasAbertas = (function () {
   return { montar: montar };
 })();
 
+/* Conferência de dados: compara cada fonte com o Fabric recortado pela mesma regra de tipos. Lê #dadosConferencia
+   (Supabase no Netlify). Uma leitura nova do Power BI digitada na tela fica só neste navegador (localStorage). */
+window.conferencia = (function () {
+  'use strict';
+  var D = null, ligado = false, CHAVE = 'hub-conferencia-pbi';
+  var FAIXAS = [['f1', '1 dia útil'], ['f2', '2 dias úteis'], ['f3', '3 dias úteis'], ['f4', '4 dias úteis'], ['f5', '5 dias úteis'],
+                ['f6_10', '6 a 10 dias úteis'], ['f11_20', '11 a 20 dias úteis'], ['f21_30', '21 a 30 dias úteis'], ['f30', 'Mais de 30 dias úteis']];
+  var ROM = [['sem_romaneio', 'Sem romaneio'], ['aguardando_rota', 'Aguardando rota'], ['em_rota', 'Em rota (controle de entrega)'], ['cliente_retira', 'Cliente retira']];
+  var CAMPOS = [['h', 'Cartões'], ['abertas', 'Total (equip.)'], ['no_prazo', 'No prazo'], ['atrasadas', 'Atrasado'], ['atraso_medio', 'Atraso médio (dias)']]
+    .concat([['h', 'Faixa de atraso']], FAIXAS, [['h', 'Status do romaneio']], ROM);
+  var SIT = { ok: ['Bate', 'ok'], amb: ['Diferença pequena', 'amb'], erro: ['Diverge', 'erro'], conf: ['Definição a confirmar', 'cinza'] };
+
+  function el(t, c, x) { var e = document.createElement(t); if (c) { e.className = c; } if (x != null) { e.textContent = x; } return e; }
+  function br(n, casas) { return Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: casas || 0, maximumFractionDigits: casas || 0 }); }
+  function quando(b) {
+    if (!b) { return ''; }
+    var d = new Date(b), p = function (n) { return String(n).padStart(2, '0'); };
+    return isNaN(d) ? '' : p(d.getDate()) + '/' + p(d.getMonth() + 1) + ' às ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function lerLocal() { try { return JSON.parse(localStorage.getItem(CHAVE) || 'null'); } catch (e) { return null; } }
+  function gravarLocal(v) { try { if (v) { localStorage.setItem(CHAVE, JSON.stringify(v)); } else { localStorage.removeItem(CHAVE); } } catch (e) { /* sem armazenamento: vale só nesta visita */ } }
+
+  function carregar() {
+    if (window.hubSupabase) {
+      return window.hubSupabase.from('hub_resumos').select('dados, base').eq('app', 'conferencia-dados').maybeSingle().then(function (r) {
+        if (r.error) { throw r.error; }
+        return r.data ? Object.assign({}, r.data.dados, { base: r.data.base }) : null;
+      });
+    }
+    try { var d = JSON.parse(document.getElementById('dadosConferencia').textContent); return Promise.resolve(d && d.recortes ? d : null); }
+    catch (e) { return Promise.resolve(null); }
+  }
+
+  /* situação de um valor da fonte contra o Fabric; pp = indicador em percentual (régua em pontos).
+     Números pequenos (faixas de atraso) ganham uma folga absoluta: até 2 equip. bate, até 10 é diferença pequena. */
+  function situacao(v, fab, pp) {
+    var dif = Math.abs(v - fab);
+    if (pp) { return dif <= 0.2 ? 'ok' : dif <= 1 ? 'amb' : 'erro'; }
+    var rel = fab ? dif / fab : (v ? 1 : 0);
+    return rel <= 0.005 || dif <= 2 ? 'ok' : rel <= 0.02 || dif <= 10 ? 'amb' : 'erro';
+  }
+  function grupos() {
+    var R = D.recortes, H = D.hub, g = [];
+    var pbiLocal = lerLocal();
+    g.push({ nome: 'Trocas em Aberto (Hub)', regra: R.trocas_abertas.rotulo, base: D.base, rc: R.trocas_abertas, v: H.trocas_abertas, mesma: true });
+    g.push({ nome: 'DiskTrocas (Hub) · card Troca', regra: R.disktrocas.rotulo, base: D.base, rc: R.disktrocas, v: H.disktrocas, mesma: true });
+    (D.leituras || []).forEach(function (l) {
+      var v = l.fonte === 'Power BI' && pbiLocal ? pbiLocal : l;
+      g.push({ nome: l.fonte + ' · ' + l.pagina, regra: (R[l.recorte] || R.pbi).rotulo, base: v.base, rc: R[l.recorte] || R.pbi, v: v,
+               local: v === pbiLocal });
+    });
+    return g;
+  }
+  function linhasDoGrupo(gr) {
+    var rc = gr.rc, v = gr.v, out = [];
+    function add(nome, val, fab, extra) {
+      if (val == null || val === '' || isNaN(val)) { return; }
+      extra = extra || {};
+      out.push({ nome: nome, v: Number(val), fab: fab, casas: extra.casas || 0, pp: !!extra.pp, sub: !!extra.sub,
+                 sit: extra.conf ? 'conf' : situacao(Number(val), fab, extra.pp) });
+    }
+    add('Em aberto (equip.)', v.abertas, rc.abertas);
+    add('No prazo', v.no_prazo, rc.abertas - rc.atrasadas);
+    add('Atrasadas', v.atrasadas, rc.atrasadas);
+    if (v.abertas != null && v.atrasadas != null) { add('% atrasadas', v.atrasadas / v.abertas * 100, rc.abertas ? rc.atrasadas / rc.abertas * 100 : 0, { casas: 1, pp: true }); }
+    add('Atraso médio (dias úteis, só atrasadas)', v.atraso_medio, rc.atrasadas ? rc.soma_atraso / rc.atrasadas : 0, { casas: 1, conf: true });
+    FAIXAS.forEach(function (f) { add(f[1], v[f[0]], rc[f[0]], { sub: true }); });
+    ROM.forEach(function (f) { add(f[1], v[f[0]], rc[f[0]], { sub: f[0] !== 'em_rota' }); });
+    return out;
+  }
+
+  function desenhar() {
+    var corpo = document.getElementById('cfCorpo'); corpo.textContent = '';
+    var conta = { ok: 0, amb: 0, erro: 0, conf: 0 };
+    grupos().forEach(function (gr) {
+      var tr = el('tr', 'cf-grupo'), td = el('td'); td.colSpan = 5;
+      td.appendChild(el('b', '', gr.nome));
+      var info = 'Conta ' + gr.regra + ' · base de ' + (quando(gr.base) || 'sem data');
+      if (gr.mesma) { info += ' · mesma atualização do Fabric'; }
+      var min = gr.base && D.base ? Math.round((new Date(D.base) - new Date(gr.base)) / 60000) : 0;
+      if (!gr.mesma && min > 30) { info += ' · ' + (min >= 120 ? br(min / 60, 1) + ' h' : min + ' min') + ' antes da base do Fabric: parte da diferença é só o tempo'; }
+      if (gr.local) { info += ' · leitura digitada neste navegador'; }
+      td.appendChild(el('span', 'sub', info)); tr.appendChild(td); corpo.appendChild(tr);
+      linhasDoGrupo(gr).forEach(function (l) {
+        conta[l.sit]++;
+        var r = el('tr'), d = l.v - l.fab, s = SIT[l.sit];
+        var dif = el('td', 'num');
+        if (Math.abs(d) < (l.casas ? 0.05 : 0.5)) { dif.textContent = '0'; }
+        else { dif.appendChild(el('span', d > 0 ? 'cf-mais' : 'cf-menos', (d > 0 ? '+' : '−') + br(Math.abs(d), l.casas) + (l.pp ? ' p.p.' : ''))); }
+        var sit = el('td'); sit.appendChild(el('span', 'selo ' + s[1], s[0]));
+        r.append(el('td', 'cf-ind' + (l.sub ? ' cf-sub' : ''), l.nome), el('td', 'num', br(l.v, l.casas) + (l.pp ? '%' : '')),
+                 el('td', 'num', br(l.fab, l.casas) + (l.pp ? '%' : '')), dif, sit);
+        corpo.appendChild(r);
+      });
+    });
+    var k = document.getElementById('cfKpis'); k.textContent = '';
+    [['cf-ok', 'Batem', conta.ok, 'até 0,5% de diferença'], ['cf-amb', 'Diferença pequena', conta.amb, 'até 2%'],
+     ['cf-erro', 'Divergem', conta.erro, 'acima de 2%'], ['', 'A confirmar', conta.conf, 'regra da fonte ainda não conhecida']].forEach(function (c) {
+      var x = el('div', 'kpi ' + c[0]); x.append(el('div', 'rot', c[1]), el('div', 'val', br(c[2])), el('div', 'det', c[3])); k.appendChild(x);
+    });
+    var R = D.recortes, f = document.getElementById('cfRecortes'); f.textContent = '';
+    f.appendChild(el('span', 'faixa-txt', 'As fontes não contam a mesma coisa como "troca em aberto". No Fabric agora: ' +
+      br(R.pbi.abertas) + ' com Troca + Troca de Modelo + Envio (regra do Power BI e do Painel FCA) · ' +
+      br(R.disktrocas.abertas) + ' com Troca + Troca de Modelo (DiskTrocas) · ' +
+      br(R.trocas_abertas.abertas) + ' só com Troca (Trocas em Aberto). Cada fonte é conferida contra a própria regra.'));
+  }
+
+  function formulario() {
+    var box = document.getElementById('cfCampos'), atual = lerLocal() || (D.leituras || []).filter(function (l) { return l.fonte === 'Power BI'; })[0] || {};
+    box.textContent = '';
+    var c0 = el('div', 'campo'), lb0 = el('label', '', 'Atualizado em (Power BI)'), in0 = el('input');
+    lb0.htmlFor = in0.id = 'cf-base'; in0.type = 'datetime-local'; in0.value = (atual.base || '').slice(0, 16);
+    c0.append(lb0, in0); box.appendChild(c0);
+    CAMPOS.forEach(function (c) {
+      if (c[0] === 'h') { box.appendChild(el('h4', '', c[1])); return; }
+      var d = el('div', 'campo'), lb = el('label', '', c[1]), inp = el('input');
+      lb.htmlFor = inp.id = 'cf-' + c[0]; inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off';
+      inp.value = atual[c[0]] != null ? String(atual[c[0]]).replace('.', ',') : '';
+      d.append(lb, inp); box.appendChild(d);
+    });
+  }
+  function lerFormulario() {
+    var v = { fonte: 'Power BI', pagina: '[Operações] Trocas · Trocas Abertas', recorte: 'pbi', base: document.getElementById('cf-base').value };
+    var erro = '';
+    CAMPOS.forEach(function (c) {
+      if (c[0] === 'h') { return; }
+      var s = document.getElementById('cf-' + c[0]).value.trim().replace(/\./g, '').replace(',', '.');
+      if (!s) { return; }
+      if (isNaN(Number(s))) { erro = erro || ('"' + c[1] + '" não é um número. Use só algarismos, como 4.309 ou 13,0.'); return; }
+      v[c[0]] = Number(s);
+    });
+    if (!v.base) { erro = erro || 'Informe a data e a hora de "Atualizado em" do Power BI.'; }
+    if (v.abertas == null) { erro = erro || 'Informe pelo menos o Total (equip.).'; }
+    return { v: v, erro: erro };
+  }
+
+  function montar() {
+    if (window.hubSupabase && !(window.HUB.usuario && window.HUB.usuario.nome)) { return; }
+    var base = document.getElementById('appBase'); base.textContent = 'Carregando…';
+    carregar().then(function (d) {
+      D = d;
+      if (!D) {
+        base.textContent = '';
+        document.getElementById('cfCorpo').innerHTML = '<tr><td colspan="5" class="sub">Ainda não há dados. A próxima atualização preenche esta tela.</td></tr>';
+        return;
+      }
+      base.textContent = 'Base do Fabric de ' + quando(D.base);
+      desenhar(); formulario();
+      if (!ligado) {
+        ligado = true;
+        document.getElementById('cfForm').addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var r = lerFormulario(), e = document.getElementById('cfErro');
+          e.hidden = !r.erro; e.textContent = r.erro;
+          if (r.erro) { return; }
+          gravarLocal(r.v); desenhar();
+        });
+        document.getElementById('cfLimpar').addEventListener('click', function () {
+          gravarLocal(null); document.getElementById('cfErro').hidden = true; formulario(); desenhar();
+        });
+      }
+    }).catch(function (e) {
+      base.textContent = '';
+      document.getElementById('cfCorpo').innerHTML = '';
+      var tr = el('tr'), td = el('td', 'sub', 'Não consegui carregar os dados (' + (e.message || 'sem resposta') + '). Atualize a página; se continuar, avise o administrador do hub.');
+      td.colSpan = 5; tr.appendChild(td); document.getElementById('cfCorpo').appendChild(tr);
+    });
+  }
+  return { montar: montar };
+})();
+
+/* Gerencial de dados: tela de admin (menu do rodapé, #dados). Não entra no catálogo; usa a moldura de app. */
+var APP_DADOS = { pasta: 'conferencia-dados', nome: 'Gerencial de dados', resumo: 'Confere as trocas em aberto do Hub, do Power BI e do Painel FCA contra o disktrans_gold', area: 'Dados', icone: 'tabela', cor: 'navy' };
+
 function montarVista() {
   if (window.hubColocarSair) { window.hubColocarSair(); }
-  var H = window.HUB, t = { inicio: 'Início', catalogo: 'Catálogo', avisos: 'Avisos', gerenciar: 'Gerenciar apps', pessoas: 'Pessoas e acessos' };
-  if (H.appAtual) {
-    var a = H.apps.filter(function (x) { return x.pasta === H.appAtual; })[0];
+  var H = window.HUB, t = { inicio: 'Início', catalogo: 'Catálogo', avisos: 'Avisos', dados: 'Gerencial de dados', gerenciar: 'Gerenciar apps', pessoas: 'Pessoas e acessos' };
+  var dados = H.telaAtual === 'dados' && H.admin;
+  if (H.appAtual || dados) {
+    var a = dados ? APP_DADOS : H.apps.filter(function (x) { return x.pasta === H.appAtual; })[0];
     if (!a) { return; }
     document.getElementById('telaHub').hidden = true; document.getElementById('telaApp').hidden = false;
-    var telas = { 'trocas-abertas': 'appTrocas', 'disktrocas': 'appDisktrocas' }, alvo = a.pode === false ? 'appSemAcesso' : (telas[a.pasta] || 'appVazio');
+    var telas = { 'trocas-abertas': 'appTrocas', 'disktrocas': 'appDisktrocas', 'conferencia-dados': 'appConferencia' }, alvo = a.pode === false ? 'appSemAcesso' : (telas[a.pasta] || 'appVazio');
     ['appTrocas', 'appDisktrocas', 'appVazio', 'appSemAcesso'].forEach(function (id) { document.getElementById(id).hidden = id !== alvo; });
+    document.getElementById('appConferencia').hidden = alvo !== 'appConferencia';
     document.getElementById('appBase').textContent = '';
     if (alvo === 'appTrocas') { window.trocasAbertas.montar(); }
+    if (alvo === 'appConferencia') { window.conferencia.montar(); }
     if (alvo === 'appDisktrocas') { window.disktrocas.montar(); }
     document.title = a.nome + ' · Hub Atendimento';
     document.getElementById('appNome').textContent = document.getElementById('appTrilha').textContent = a.nome;
@@ -458,6 +679,9 @@ function montarVista() {
     document.getElementById('tituloTela').textContent = t[H.telaAtual] || 'Início';
     document.title = (t[H.telaAtual] || 'Início') + ' · Hub Atendimento';
     if (window.hubTelaExtra) { window.hubTelaExtra(H.telaAtual); }
+    if (H.telaAtual === 'dados') {
+      document.getElementById('hubMiolo').innerHTML = '<div class="card vazio"><b>Só administradores do hub veem esta tela.</b><span>Se você precisa dela, peça a um administrador.</span></div>';
+    }
   }
 }
 document.addEventListener('DOMContentLoaded', montarVista);
